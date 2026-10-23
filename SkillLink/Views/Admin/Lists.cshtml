@@ -1,0 +1,59 @@
+@{
+  var cats = (List<ServiceCategory>)ViewBag.Cats; var dists = (List<District>)ViewBag.Dists;
+  var catUse = (Dictionary<int, int>)ViewBag.CatUse; var distUse = (Dictionary<int, int>)ViewBag.DistUse;
+}
+<div class="page-hero"><div class="wrap"><h1>Categories and districts</h1><p>These lists feed the search filters, the provider forms and the map. Changes apply straight away, with no code change.</p></div></div>
+<div class="wrap" style="padding-bottom:56px">
+  <div class="stack">
+    <div class="panel">
+      <h2>Service categories</h2>
+      @foreach (var c in cats)
+      {
+        var used = catUse.TryGetValue(c.CategoryId, out var n) ? n : 0;
+        <div class="list-row">
+          <form asp-action="UpdateCategory" method="post" class="list-edit">
+            <input type="hidden" name="id" value="@c.CategoryId">
+            <label class="visually-hidden" for="cn-@c.CategoryId">Category name</label><input id="cn-@c.CategoryId" name="name" value="@c.Name" maxlength="60" required>
+            <label class="visually-hidden" for="cd-@c.CategoryId">Description</label><input id="cd-@c.CategoryId" name="description" value="@c.Description" maxlength="200" placeholder="Description (optional)">
+            <button class="btn btn-outline btn-sm">Save</button>
+          </form>
+          <form asp-action="DeleteCategory" method="post" onsubmit="return confirm('Delete this category?');"><input type="hidden" name="id" value="@c.CategoryId"><button class="btn btn-danger btn-sm">Delete</button></form>
+          <span class="muted small">@used @(used == 1 ? "provider" : "providers")</span>
+        </div>
+      }
+      <h3 class="mt-3" style="font-size:1.05rem">Add a category</h3>
+      <form asp-action="AddCategory" method="post" class="list-edit add">
+        <label class="visually-hidden" for="newcat">Name</label><input id="newcat" name="name" maxlength="60" placeholder="Name, for example Welding" required>
+        <label class="visually-hidden" for="newcatd">Description</label><input id="newcatd" name="description" maxlength="200" placeholder="Description (optional)">
+        <button class="btn btn-gold btn-sm">Add</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Districts</h2>
+      @foreach (var d in dists)
+      {
+        var used = distUse.TryGetValue(d.DistrictId, out var n) ? n : 0;
+        <div class="list-row">
+          <form asp-action="UpdateDistrict" method="post" class="list-edit">
+            <input type="hidden" name="id" value="@d.DistrictId">
+            <label class="visually-hidden" for="dn-@d.DistrictId">District name</label><input id="dn-@d.DistrictId" name="name" value="@d.Name" maxlength="60" required>
+            <label class="visually-hidden" for="dla-@d.DistrictId">Latitude</label><input id="dla-@d.DistrictId" name="lat" value="@d.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)" inputmode="decimal" class="coord" required>
+            <label class="visually-hidden" for="dlo-@d.DistrictId">Longitude</label><input id="dlo-@d.DistrictId" name="lng" value="@d.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)" inputmode="decimal" class="coord" required>
+            <button class="btn btn-outline btn-sm">Save</button>
+          </form>
+          <form asp-action="DeleteDistrict" method="post" onsubmit="return confirm('Delete this district?');"><input type="hidden" name="id" value="@d.DistrictId"><button class="btn btn-danger btn-sm">Delete</button></form>
+          <span class="muted small">@used @(used == 1 ? "provider" : "providers")</span>
+        </div>
+      }
+      <h3 class="mt-3" style="font-size:1.05rem">Add a district</h3>
+      <form asp-action="AddDistrict" method="post" class="list-edit add">
+        <label class="visually-hidden" for="newdist">Name</label><input id="newdist" name="name" maxlength="60" placeholder="Name" required>
+        <label class="visually-hidden" for="newlat">Latitude</label><input id="newlat" name="lat" inputmode="decimal" class="coord" placeholder="-24.65" required>
+        <label class="visually-hidden" for="newlng">Longitude</label><input id="newlng" name="lng" inputmode="decimal" class="coord" placeholder="25.91" required>
+        <button class="btn btn-gold btn-sm">Add</button>
+      </form>
+      <p class="muted small mb-0 mt-1">Latitude and longitude place the district on the map. Use a dot as the decimal point.</p>
+    </div>
+  </div>
+</div>

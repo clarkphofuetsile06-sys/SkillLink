@@ -1,0 +1,12 @@
+To: stixthebarber@gmail.com
+Subject: Confirm your SkillLink email
+Date: 2026-10-19 06:32:33Z
+
+Hello Stix,
+
+Confirm your email address by opening this link:
+https://localhost:63614/Account/Verify?token=CfDJ8GjubtCx3_VHuJ2dDrTxIAS2xfxO6iKSxsQ1Eu9zEWqEgvDl3jn0Wjnh0DoTD8cyDbP_Tu_y3ZKFLXAHM7Q4bmWC1CINqP8bWf4BxH2A3Z1LTk6d8AcJgUh-gvea30RcZWsMJG-F2cqgi4A9rQG2FO65UC1j3-3i4QIzw11gxjrj
+
+The link works for 3 days.
+
+SkillLink

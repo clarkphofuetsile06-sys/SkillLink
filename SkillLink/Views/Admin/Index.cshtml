@@ -1,0 +1,17 @@
+@model List<Provider>
+<div class="page-hero"><div class="wrap"><h1>Provider approvals</h1><p>Approve providers so they appear in customer search.</p></div></div>
+<div class="wrap" style="padding-bottom:56px">
+  <div class="table-card"><div class="table-scroll"><table>
+    <thead><tr><th>Name</th><th>District</th><th>Skills</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var p in Model)
+    {
+      <tr><td><strong>@p.User?.FullName</strong></td><td>@p.District?.Name</td>
+        <td><div class="chips">@foreach (var s in p.Skills) { <span class="chip">@s.Category?.Name</span> }</div></td>
+        <td><span class="status @(p.IsApproved ? "Approved" : "Pending")">@(p.IsApproved ? "Approved" : "Pending")</span></td>
+        <td>@if (!p.IsApproved) { <form asp-action="Approve" method="post" style="margin:0"><input type="hidden" name="id" value="@p.ProviderId"><button class="btn btn-ok btn-sm">Approve provider</button></form> }</td></tr>
+    }
+    </tbody>
+  </table></div></div>
+  @if (!Model.Any()) { <div class="empty mt-2">No providers have registered yet.</div> }
+</div>

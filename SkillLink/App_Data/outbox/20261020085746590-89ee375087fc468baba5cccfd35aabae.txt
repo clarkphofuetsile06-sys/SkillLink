@@ -1,0 +1,12 @@
+To: obakenggalegake02@gmail.com
+Subject: Confirm your SkillLink email
+Date: 2026-10-20 08:57:46Z
+
+Hello Obakeng Galegake,
+
+Confirm your email address by opening this link:
+https://localhost:63614/Account/Verify?token=CfDJ8GjubtCx3_VHuJ2dDrTxIATU3dbF5prg0vaco3goEaYdHYsQSOPg9MrTRfCCTplf4XfBtKaygrlr--2p1ATEmTONFALWYckJo-qDLjq8twmOVCkbUTnp7fV-qmABpvT_wijRYzeWGleLEP_m0raSxlO12iyebZQbzBw2qD4fzk1X
+
+The link works for 3 days.
+
+SkillLink

@@ -1,0 +1,23 @@
+<section class="auth-page">
+  <div class="wrap">
+    <div class="auth-card">
+      <div class="auth-side">
+        <h2>Find skilled people, or get found for your work.</h2>
+        <p>Customers search by trade and district. Providers build a profile and wait for approval before they appear in search.</p>
+        <div class="mini"><i></i></div>
+      </div>
+      <form method="post" asp-action="Register" class="auth-form">
+        <h1>Create an account</h1>
+        @if (ViewBag.Error != null) { <div class="alert alert-error">@ViewBag.Error</div> }
+        <div class="field"><label for="fullName">Full name</label><input id="fullName" name="fullName" autocomplete="name" required></div>
+        <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="phone">Phone number</label><input id="phone" name="phone" autocomplete="tel"></div>
+        <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" required></div>
+        <div class="field"><label for="role">I want to</label>
+          <select id="role" name="role"><option value="Customer">Find a service</option><option value="Provider">Offer a service</option></select></div>
+        <button class="btn btn-gold btn-block">Create account</button>
+        <p class="center mt-2 mb-0">Already registered? <a asp-action="Login">Log in</a></p>
+      </form>
+    </div>
+  </div>
+</section>

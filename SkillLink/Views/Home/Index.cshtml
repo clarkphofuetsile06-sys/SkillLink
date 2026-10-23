@@ -1,0 +1,145 @@
+@model List<Provider>
+@functions {
+  static string Initials(string? n) { var p = (n ?? "?").Split(' ', StringSplitOptions.RemoveEmptyEntries); return p.Length == 0 ? "?" : p.Length == 1 ? p[0][..1].ToUpper() : (p[0][..1] + p[^1][..1]).ToUpper(); }
+}
+@{
+  var cats = (List<ServiceCategory>)ViewBag.Cats;
+  var dists = (List<District>)ViewBag.Dists;
+  int? cat = (int?)ViewBag.Cat; int? dist = (int?)ViewBag.Dist; int? min = (int?)ViewBag.Min;
+  var filtered = cat != null || dist != null || min != null;
+  var isCustomer = User.IsInRole("Customer");
+  var mapData = Model.GroupBy(p => p.DistrictId).Select(g => new {
+      name = g.First().District?.Name ?? "",
+      lat = (double)(g.First().District?.Latitude ?? 0), lng = (double)(g.First().District?.Longitude ?? 0),
+      providers = g.Select(p => new { id = p.ProviderId, name = p.User?.FullName ?? "", rating = (double)p.AverageRating, skills = string.Join(", ", p.Skills.Select(s => s.Category?.Name)) })
+  }).ToList();
+}
+<section class="hero">
+  <div class="wrap">
+    <h1>Skilled people, in every district.</h1>
+    <p class="lede">Find a plumber, electrician, hairdresser or tutor near you. Compare ratings, then send a request.</p>
+    <div class="flag-stripe">
+      <form method="get" asp-action="Index" asp-fragment="results" class="band">
+        <div><label class="visually-hidden" for="categoryId">Category</label><select id="categoryId" name="categoryId"><option value="">All categories</option>
+          @foreach (var c in cats) { <option value="@c.CategoryId" selected="@(c.CategoryId == cat)">@c.Name</option> }</select></div>
+        <div><label class="visually-hidden" for="districtId">District</label><select id="districtId" name="districtId"><option value="">All districts</option>
+          @foreach (var d in dists) { <option value="@d.DistrictId" selected="@(d.DistrictId == dist)">@d.Name</option> }</select></div>
+        <div><label class="visually-hidden" for="minRating">Rating</label><select id="minRating" name="minRating"><option value="">Any rating</option>
+          @for (var i = 5; i >= 1; i--) { <option value="@i" selected="@(i == min)">@i stars and above</option> }</select></div>
+        <button class="btn btn-gold"><svg class="ico" aria-hidden="true"><use href="#i-search" /></svg>Search providers</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+@if (!filtered && cats.Any())
+{
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head"><h2>Browse by trade</h2><p>Pick a trade to see approved providers.</p></div>
+      <div class="tiles">
+        @foreach (var (c, i) in cats.Select((x, idx) => (x, idx)))
+        {
+          <a class="tile" asp-action="Index" asp-route-categoryId="@c.CategoryId" asp-fragment="results"><span class="disc d@(i % 5)"><partial name="_TradeIcon" model="c.Name" /></span>@c.Name</a>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+<section class="section" id="results">
+  <div class="wrap">
+    <form method="get" asp-controller="Customer" asp-action="Compose" id="compose-form">
+      @if (cat != null) { <input type="hidden" name="categoryId" value="@cat"> }
+      <div class="section-head">
+        <h2>@Model.Count @(Model.Count == 1 ? "provider" : "providers") @(filtered ? "match your search" : "ready to help")</h2>
+        <div class="head-tools">
+          @if (filtered) { <a asp-action="Index">Clear filters</a> }
+          <div class="view-toggle" role="group" aria-label="Result view">
+            <button type="button" class="on" data-view="list">List</button><button type="button" data-view="map">Map</button>
+          </div>
+        </div>
+      </div>
+      <p class="muted small mb-2">Search completed in @ViewBag.Ms ms.@if (isCustomer && Model.Count > 1) { <text> Tick up to 5 providers to send them the same request.</text> } else if (!User.Identity!.IsAuthenticated && Model.Count > 1) { <text> <a asp-controller="Account" asp-action="Login">Log in as a customer</a> to send one request to several providers at once.</text> }</p>
+
+      <div id="view-list">
+        <div class="cards">
+          @foreach (var p in Model)
+          {
+            var rating = (double)p.AverageRating; var rounded = (int)Math.Round(rating); var ratingText = rating.ToString("0.0");
+            var photo = p.Photos.OrderBy(x => x.PhotoId).FirstOrDefault();
+            var bannerStyle = photo == null ? null : "background-image: linear-gradient(rgba(11,37,69,.10), rgba(11,37,69,.40)), url('/uploads/work/" + photo.FileName + "')";
+            <article class="pcard">
+              <div class="banner b@(p.ProviderId % 4) @(photo != null ? "has-photo" : "")" style="@bannerStyle">
+                @if (isCustomer) { <label class="pick"><input type="checkbox" name="ids" value="@p.ProviderId"><span>Select</span></label> }
+                <span class="dot @(p.AvailabilityStatus == "Available" ? "on" : "")">@p.AvailabilityStatus</span>
+              </div>
+              <div class="body">
+                <div class="avatar av@(p.ProviderId % 4)" aria-hidden="true">@Initials(p.User?.FullName)</div>
+                <h3><a asp-action="Details" asp-route-id="@p.ProviderId">@p.User?.FullName</a></h3>
+                <div class="meta">
+                  <span><svg class="ico" aria-hidden="true"><use href="#i-pin" /></svg>@p.District?.Name</span>
+                  @if (rating > 0)
+                  {
+                    <span><span class="stars" role="img" aria-label="Rated @ratingText out of 5">@for (var i = 1; i <= 5; i++) { <span class="@(i <= rounded ? "" : "off")">★</span> }</span> @ratingText</span>
+                  }
+                  else { <span>No reviews yet</span> }
+                  @if (p.Photos.Count > 0) { <span><svg class="ico" aria-hidden="true"><use href="#i-camera" /></svg>@p.Photos.Count @(p.Photos.Count == 1 ? "photo" : "photos")</span> }
+                </div>
+                <div class="chips">@foreach (var s in p.Skills) { <span class="chip">@s.Category?.Name</span> }</div>
+              </div>
+            </article>
+          }
+        </div>
+        @if (!Model.Any())
+        {
+          <div class="empty">
+            <strong>No approved providers match these filters</strong>
+            Try a different district or category.@if (User.Identity?.IsAuthenticated != true) { <text> Do you offer a service? <a asp-controller="Account" asp-action="Register">Register as a provider</a>.</text> }
+          </div>
+        }
+      </div>
+
+      <div id="view-map" hidden>
+        <div id="map" role="region" aria-label="Map of providers by district"></div>
+        <p class="muted small mt-1">Each circle sits on a district and shows how many providers match your search there. Select a circle to see who they are.</p>
+        <script type="application/json" id="map-data">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(mapData))</script>
+      </div>
+
+      @if (isCustomer)
+      {
+        <div id="select-bar" class="select-bar" role="region" aria-label="Selected providers">
+          <span><strong data-count>0</strong> selected (up to 5)</span>
+          <button class="btn btn-gold btn-sm">Request selected providers</button>
+        </div>
+      }
+    </form>
+  </div>
+</section>
+
+<section class="steps-band">
+  <div class="wrap">
+    <h2>How SkillLink works</h2>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Find a provider</h3><p>Filter by trade, district and rating, as a list or on the map.</p></div>
+      <div class="step"><div class="n">2</div><h3>Send a request</h3><p>Describe the job and choose a date. Send it to one provider or to several at once.</p></div>
+      <div class="step"><div class="n">3</div><h3>Rate the work</h3><p>When the provider marks the job complete, you can leave a rating and comment.</p></div>
+    </div>
+  </div>
+</section>
+
+@if (User.Identity?.IsAuthenticated != true)
+{
+  <section class="cta">
+    <div class="wrap">
+      <h2>Have a skill people need?</h2>
+      <p>Create a provider profile, list your trades, add photos of your work and wait for approval. Once approved, customers can find and request you.</p>
+      <a class="btn btn-gold" asp-controller="Account" asp-action="Register">Register as a provider</a>
+    </div>
+  </section>
+}
+
+@section Scripts {
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+}

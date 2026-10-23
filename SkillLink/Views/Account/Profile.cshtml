@@ -1,0 +1,33 @@
+@model AppUser
+<div class="page-hero"><div class="wrap"><h1>My account</h1><p>Your contact details and password. @(Model.Role) account.</p></div></div>
+<div class="wrap" style="padding-bottom:56px">
+  <div class="two-col">
+    <form asp-action="Profile" method="post" class="panel">
+      <h2>My details</h2>
+      <div class="field"><label for="fullName">Full name</label><input id="fullName" name="fullName" value="@Model.FullName" maxlength="100" required></div>
+      <div class="field"><label for="phone">Phone number</label><input id="phone" name="phone" value="@Model.PhoneNumber" autocomplete="tel"></div>
+      <div class="field"><label>Email</label>
+        <div class="email-line"><span>@Model.Email</span>
+          @if (Model.EmailConfirmed) { <span class="status Approved">Confirmed</span> } else { <span class="status Pending">Not confirmed</span> }</div></div>
+      <button class="btn btn-gold">Save details</button>
+      @if (Model.Role == "Provider") { <a class="btn btn-outline" asp-controller="Provider" asp-action="Index">Edit provider profile</a> }
+      @if (Model.Role == "Customer") { <a class="btn btn-outline" asp-controller="Customer" asp-action="Requests">My requests</a> }
+    </form>
+    <div class="stack">
+      <form asp-action="ChangePassword" method="post" class="panel">
+        <h2>Change password</h2>
+        <div class="field"><label for="current">Current password</label><input id="current" name="current" type="password" autocomplete="current-password" required></div>
+        <div class="field"><label for="newpw">New password</label><input id="newpw" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required></div>
+        <button class="btn btn-dark">Change password</button>
+      </form>
+      @if (!Model.EmailConfirmed)
+      {
+        <form asp-action="ResendVerification" method="post" class="panel">
+          <h2>Confirm your email</h2>
+          <p>We sent a confirmation link to <strong>@Model.Email</strong>. Open it to confirm your address.</p>
+          <button class="btn btn-outline">Send the link again</button>
+        </form>
+      }
+    </div>
+  </div>
+</div>

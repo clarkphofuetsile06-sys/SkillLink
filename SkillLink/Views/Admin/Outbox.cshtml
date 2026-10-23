@@ -1,0 +1,21 @@
+@model List<OutboxItem>
+<div class="page-hero"><div class="wrap"><h1>Email outbox</h1><p>SkillLink sends an email for every notification, confirmation and password reset.</p></div></div>
+<div class="wrap" style="padding-bottom:56px">
+  @if (ViewBag.Smtp == true)
+  {
+    <div class="alert alert-ok">An SMTP server is configured in <code>appsettings.json</code>, so emails are delivered to real inboxes and nothing is stored here.</div>
+  }
+  else
+  {
+    <div class="alert alert-warn">No SMTP server is configured, so emails are saved in the <code>App_Data/outbox</code> folder and shown here. To send real email, fill in the <code>Email</code> section of <code>appsettings.json</code>.</div>
+    @foreach (var m in Model)
+    {
+      <div class="rcard">
+        <div class="head"><span class="who">@m.Subject</span><small class="muted">@m.Date</small></div>
+        <div class="meta mb-2"><span>To: @m.To</span></div>
+        <div>@Html.Raw(m.Html)</div>
+      </div>
+    }
+    @if (!Model.Any()) { <div class="empty"><strong>No emails yet</strong>Register a user or send a request and the emails will appear here.</div> }
+  }
+</div>

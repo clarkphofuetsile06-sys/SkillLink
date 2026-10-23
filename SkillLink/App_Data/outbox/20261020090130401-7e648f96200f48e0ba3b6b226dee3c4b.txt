@@ -1,0 +1,12 @@
+To: clarkphofuetsile06@gmail.com
+Subject: Confirm your SkillLink email
+Date: 2026-10-20 09:01:30Z
+
+Hello Clark,
+
+Confirm your email address by opening this link:
+https://localhost:63614/Account/Verify?token=CfDJ8GjubtCx3_VHuJ2dDrTxIASaMW2-FmJBAS4z9axuWjQm7kq31KQnOHYLol5MThYCu-wNbPewQ8BLxupUiUxfn0zZnx6CIUatFIN3S8bOjydQu_YcNJEjEtoxBdIw19GyJj12Hgt5D0-vDvGJZWYyE46O_Jc3T07OntLN0HsVKqmv
+
+The link works for 3 days.
+
+SkillLink

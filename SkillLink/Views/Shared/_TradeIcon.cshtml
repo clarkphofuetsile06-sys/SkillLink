@@ -1,0 +1,8 @@
+@model string
+@{
+  var n = (Model ?? "").ToLowerInvariant();
+  var key = n.Contains("plumb") ? "droplet" : n.Contains("electric") ? "bolt" : n.Contains("carpent") ? "hammer"
+          : n.Contains("clean") ? "sparkles" : n.Contains("hair") ? "scissors" : n.Contains("photo") ? "camera"
+          : n.Contains("graphic") ? "pen" : n.Contains("mechanic") ? "wrench" : n.Contains("tutor") ? "book" : "gear";
+}
+<svg class="ico" aria-hidden="true"><use href="#i-@(key)" /></svg>

@@ -1,0 +1,12 @@
+To: rasbuilder@gmail.com
+Subject: Confirm your SkillLink email
+Date: 2026-10-20 09:08:16Z
+
+Hello Atang Ras Builder,
+
+Confirm your email address by opening this link:
+https://localhost:63614/Account/Verify?token=CfDJ8GjubtCx3_VHuJ2dDrTxIATG3SBZ8FIPNwKorLXL10vxOPcnRJ4ec8UJ9aUk68Uu38RUf7oi3j-HQJYcrmZoRdpyCBvitz55H0xuEkyEaLHBGk-kQeEsHpeZWWh2AWSm5B91zh1DoLhbzGEglVwFL2NZ8AN88xJp1S3mYg98yy6y
+
+The link works for 3 days.
+
+SkillLink

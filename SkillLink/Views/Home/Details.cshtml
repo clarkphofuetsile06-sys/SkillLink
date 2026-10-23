@@ -1,0 +1,78 @@
+@model Provider
+@functions {
+  static string Initials(string? n) { var p = (n ?? "?").Split(' ', StringSplitOptions.RemoveEmptyEntries); return p.Length == 0 ? "?" : p.Length == 1 ? p[0][..1].ToUpper() : (p[0][..1] + p[^1][..1]).ToUpper(); }
+}
+@{
+  var reviews = (List<Review>)ViewBag.Reviews;
+  var rating = (double)Model.AverageRating; var rounded = (int)Math.Round(rating); var ratingText = rating.ToString("0.0");
+  var today = DateTime.Today.ToString("yyyy-MM-dd");
+}
+<div class="profile-banner"></div>
+<div class="wrap profile-grid">
+  <div class="two-col wide">
+    <div>
+      <div class="panel profile-panel">
+        <div class="avatar lg av@(Model.ProviderId % 4)" aria-hidden="true">@Initials(Model.User?.FullName)</div>
+        <h1>@Model.User?.FullName</h1>
+        <div class="meta" style="margin-bottom:1rem">
+          <span><svg class="ico" aria-hidden="true"><use href="#i-pin" /></svg>@Model.District?.Name</span>
+          @if (rating > 0) { <span><span class="stars" role="img" aria-label="Rated @ratingText out of 5">@for (var i = 1; i <= 5; i++) { <span class="@(i <= rounded ? "" : "off")">★</span> }</span> @ratingText from @reviews.Count @(reviews.Count == 1 ? "review" : "reviews")</span> }
+          else { <span>No reviews yet</span> }
+          <span class="dot @(Model.AvailabilityStatus == "Available" ? "on" : "")">@Model.AvailabilityStatus</span>
+        </div>
+        <p>@(string.IsNullOrWhiteSpace(Model.Bio) ? "This provider has not added a bio yet." : Model.Bio)</p>
+        <h2>Skills</h2>
+        <div class="chips" style="margin-top:.2rem">@foreach (var s in Model.Skills) { <span class="chip">@s.Category?.Name, @s.YearsExperience @(s.YearsExperience == 1 ? "year" : "years")</span> }</div>
+      </div>
+
+
+      @if (Model.Photos.Any())
+      {
+        <h2 class="sub-title">Work gallery</h2>
+        <div class="gallery">
+          @foreach (var ph in Model.Photos.OrderByDescending(x => x.UploadedAt))
+          {
+            <figure><a href="/uploads/work/@ph.FileName" target="_blank" rel="noopener"><img src="/uploads/work/@ph.FileName" alt="@(ph.Caption ?? "Work by " + Model.User?.FullName)" loading="lazy"></a>
+              @if (!string.IsNullOrWhiteSpace(ph.Caption)) { <figcaption>@ph.Caption</figcaption> }</figure>
+          }
+        </div>
+      }
+
+      <h2 class="sub-title">Reviews</h2>
+      @foreach (var r in reviews)
+      {
+        <div class="rcard s-Completed">
+          <div class="head"><span class="stars" role="img" aria-label="@r.Rating out of 5">@for (var i = 1; i <= 5; i++) { <span class="@(i <= r.Rating ? "" : "off")">★</span> }</span><small class="muted">@r.CreatedAt.ToLocalTime().ToString("d MMM yyyy")</small></div>
+          @if (!string.IsNullOrWhiteSpace(r.Comment)) { <div>@r.Comment</div> }
+        </div>
+      }
+      @if (!reviews.Any()) { <div class="empty">No reviews yet. Reviews appear here after a customer completes a job with this provider.</div> }
+    </div>
+
+    <div class="sticky">
+      @if (User.IsInRole("Customer") && Model.Skills.Any())
+      {
+        <form asp-controller="Customer" asp-action="Send" method="post" class="panel">
+          <h2>Request this provider</h2>
+          <input type="hidden" name="providerId" value="@Model.ProviderId">
+          <div class="field"><label for="categoryId">Service needed</label>
+            <select id="categoryId" name="categoryId">@foreach (var s in Model.Skills) { <option value="@s.CategoryId">@s.Category?.Name</option> }</select></div>
+          <div class="field"><label for="jobDetails">Job details</label>
+            <textarea id="jobDetails" name="jobDetails" placeholder="What needs doing, and where?" required></textarea></div>
+          <div class="field"><label for="preferredDate">Date you need it by</label>
+            <input id="preferredDate" type="date" name="preferredDate" min="@today" required></div>
+          <button class="btn btn-gold btn-block">Send request</button>
+        </form>
+      }
+      else if (!User.Identity!.IsAuthenticated)
+      {
+        <div class="panel">
+          <h2>Want to hire @(Model.User?.FullName)?</h2>
+          <p>Log in as a customer to send a request.</p>
+          <a class="btn btn-gold" asp-controller="Account" asp-action="Login">Log in</a>
+          <a class="btn btn-outline" asp-controller="Account" asp-action="Register">Create an account</a>
+        </div>
+      }
+    </div>
+  </div>
+</div>

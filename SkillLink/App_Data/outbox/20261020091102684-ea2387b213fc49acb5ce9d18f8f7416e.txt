@@ -1,0 +1,12 @@
+To: serviceprovider@gmail.com
+Subject: Confirm your SkillLink email
+Date: 2026-10-20 09:11:02Z
+
+Hello Maitseo Bonolo,
+
+Confirm your email address by opening this link:
+https://localhost:63614/Account/Verify?token=CfDJ8GjubtCx3_VHuJ2dDrTxIARxAr4Fd40D9nT-nzO1cnDUc0C0JkfUVoz84FZ6xBiw3Kru4vTLzazDeVFgSdysiO1fEJN9dBZJHvC2dFBBrifXxAyWggKVsqBJqER4lSfW7ok_AEnSnVDxHXQ7TK3tA72ue-8xES0dW5IxVMq7jTiK
+
+The link works for 3 days.
+
+SkillLink

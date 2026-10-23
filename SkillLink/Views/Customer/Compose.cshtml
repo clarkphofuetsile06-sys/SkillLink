@@ -1,0 +1,42 @@
+@model List<Provider>
+@functions {
+  static string Initials(string? n) { var p = (n ?? "?").Split(' ', StringSplitOptions.RemoveEmptyEntries); return p.Length == 0 ? "?" : p.Length == 1 ? p[0][..1].ToUpper() : (p[0][..1] + p[^1][..1]).ToUpper(); }
+}
+@{
+  int? cat = (int?)ViewBag.Cat;
+  var today = DateTime.Today.ToString("yyyy-MM-dd");
+  var catOptions = Model.SelectMany(p => p.Skills).Where(s => s.Category != null).GroupBy(s => s.CategoryId)
+      .Select(g => new { Id = g.Key, Name = g.First().Category!.Name, Count = g.Count() }).OrderBy(x => x.Name).ToList();
+}
+<div class="page-hero"><div class="wrap"><h1>Request several providers</h1><p>Write the job once. Each provider you choose gets the same request and answers on their own.</p></div></div>
+<div class="wrap" style="padding-bottom:56px">
+  <div class="two-col wide">
+    <div class="stack">
+      <h2 class="sub-title" style="margin-top:0">Sending to @Model.Count @(Model.Count == 1 ? "provider" : "providers")</h2>
+      @foreach (var p in Model)
+      {
+        <div class="panel mini-prov">
+          <div class="avatar av@(p.ProviderId % 4)" aria-hidden="true">@Initials(p.User?.FullName)</div>
+          <div>
+            <strong>@p.User?.FullName</strong>
+            <div class="meta"><span><svg class="ico" aria-hidden="true"><use href="#i-pin" /></svg>@p.District?.Name</span><span>@(p.AverageRating > 0 ? p.AverageRating.ToString("0.0") + " rating" : "No reviews yet")</span></div>
+            <div class="chips" style="margin-top:.4rem">@foreach (var s in p.Skills) { <span class="chip">@s.Category?.Name</span> }</div>
+          </div>
+        </div>
+      }
+      <a asp-controller="Home" asp-action="Index">Back to search</a>
+    </div>
+    <form asp-action="SendMany" method="post" class="panel">
+      <h2>Your job</h2>
+      @foreach (var p in Model) { <input type="hidden" name="providerIds" value="@p.ProviderId"> }
+      <div class="field"><label for="categoryId">Service needed</label>
+        <select id="categoryId" name="categoryId">
+          @foreach (var o in catOptions) { <option value="@o.Id" selected="@(o.Id == cat)">@o.Name (@o.Count of @Model.Count offer it)</option> }
+        </select>
+        <small class="muted">Providers who do not offer the chosen service are skipped.</small></div>
+      <div class="field"><label for="jobDetails">Job details</label><textarea id="jobDetails" name="jobDetails" placeholder="What needs doing, and where?" required></textarea></div>
+      <div class="field"><label for="preferredDate">Date you need it by</label><input id="preferredDate" type="date" name="preferredDate" min="@today" required></div>
+      <button class="btn btn-gold btn-block">Send request</button>
+    </form>
+  </div>
+</div>

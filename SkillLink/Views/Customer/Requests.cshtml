@@ -1,0 +1,32 @@
+@model List<ProviderRequest>
+<div class="page-hero"><div class="wrap"><h1>My requests</h1><p>Track every request you have sent and review finished jobs.</p></div></div>
+<div class="wrap" style="padding-bottom:56px">
+  @foreach (var r in Model)
+  {
+    <div class="rcard s-@r.Status">
+      <div class="head">
+        <div><span class="who">@r.Provider?.User?.FullName</span> <span class="chip">@r.ServiceRequest?.Category?.Name</span></div>
+        <span class="status @r.Status">@r.Status</span>
+      </div>
+      <div>@r.ServiceRequest?.JobDetails</div>
+      <div class="meta" style="margin-top:.4rem"><span>Needed by @r.ServiceRequest?.PreferredDate.ToString("d MMM yyyy")</span></div>
+      @if (r.Status == "Completed" && r.Review == null)
+      {
+        <form asp-action="Rate" method="post" class="rate-form">
+          <input type="hidden" name="id" value="@r.ProviderRequestId">
+          <div><label class="visually-hidden" for="rating-@r.ProviderRequestId">Rating</label><select id="rating-@r.ProviderRequestId" name="rating"><option value="5">5 stars</option><option value="4">4 stars</option><option value="3">3 stars</option><option value="2">2 stars</option><option value="1">1 star</option></select></div>
+          <div><label class="visually-hidden" for="comment-@r.ProviderRequestId">Comment</label><input id="comment-@r.ProviderRequestId" name="comment" placeholder="How did the job go?"></div>
+          <button class="btn btn-gold">Submit review</button>
+        </form>
+      }
+      @if (r.Review != null)
+      {
+        <div class="quote"><span class="stars" role="img" aria-label="@r.Review.Rating out of 5">@for (var i = 1; i <= 5; i++) { <span class="@(i <= r.Review.Rating ? "" : "off")">★</span> }</span> <span class="muted">Your review</span><br>@r.Review.Comment</div>
+      }
+    </div>
+  }
+  @if (!Model.Any())
+  {
+    <div class="empty"><strong>No requests yet</strong>Search for a provider and send your first request.<br><a class="btn btn-gold mt-2" asp-controller="Home" asp-action="Index">Find a provider</a></div>
+  }
+</div>

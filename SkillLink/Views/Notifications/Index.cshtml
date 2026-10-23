@@ -1,0 +1,6 @@
+@model List<Notification>
+<div class="page-hero"><div class="wrap"><h1>Notifications</h1><p>Updates about your requests and approvals.</p></div></div>
+<div class="wrap" style="padding-bottom:56px">
+  @foreach (var n in Model) { <div class="note"><span class="bell"><svg class="ico" aria-hidden="true"><use href="#i-bell" /></svg></span><span>@n.Message</span><time>@n.CreatedAt.ToLocalTime().ToString("d MMM, HH:mm")</time></div> }
+  @if (!Model.Any()) { <div class="empty"><strong>You are all caught up</strong>New updates about your requests will show up here.</div> }
+</div>

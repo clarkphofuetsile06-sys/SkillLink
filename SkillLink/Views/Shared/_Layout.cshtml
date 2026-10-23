@@ -1,0 +1,66 @@
+@inject Db Db
+@{
+    var auth = User.Identity?.IsAuthenticated == true;
+    var uid = auth ? int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!) : 0;
+    var unread = auth ? Db.Notifications.Count(n => n.UserId == uid && !n.IsRead) : 0;
+    var unverified = auth && !Db.Users.Any(u => u.UserId == uid && u.EmailConfirmed);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkillLink | Skilled people across Botswana</title>
+  <link rel="icon" type="image/svg+xml" href="~/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="~/css/site.css" rel="stylesheet">
+</head>
+<body>
+<partial name="_Icons" />
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" asp-controller="Home" asp-action="Index">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" fill="#75AADB"/><rect y="9" width="32" height="14" fill="#fff"/><rect y="12" width="32" height="8" fill="#000"/></svg>
+      SkillLink
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a class="nl" asp-controller="Home" asp-action="Index">Find providers</a>
+      @if (User.IsInRole("Customer")) { <a class="nl" asp-controller="Customer" asp-action="Requests">My requests</a> }
+      @if (User.IsInRole("Provider")) { <a class="nl" asp-controller="Provider" asp-action="Index">My profile</a> }
+      @if (User.IsInRole("Admin")) { <a class="nl" asp-controller="Admin" asp-action="Index">Approvals</a><a class="nl" asp-controller="Admin" asp-action="Lists">Categories &amp; districts</a><a class="nl" asp-controller="Admin" asp-action="Outbox">Outbox</a> }
+      @if (auth)
+      {
+        <a class="nl" asp-controller="Notifications" asp-action="Index"><svg class="ico" aria-hidden="true"><use href="#i-bell" /></svg>Notifications @if (unread > 0) { <span class="count">@unread</span> }</a>
+        <a class="nl" asp-controller="Account" asp-action="Profile">Account</a>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0"><button class="btn btn-ghost btn-sm">Log out</button></form>
+      }
+      else
+      {
+        <a class="nl" asp-controller="Account" asp-action="Login">Log in</a>
+        <a class="btn btn-gold btn-sm" asp-controller="Account" asp-action="Register">Register</a>
+      }
+    </nav>
+  </div>
+</header>
+@if (TempData["Flash"] is string flashOk) { <div class="flash ok" role="status"><div class="wrap">@flashOk</div></div> }
+@if (TempData["FlashError"] is string flashBad) { <div class="flash bad" role="alert"><div class="wrap">@flashBad</div></div> }
+@if (unverified)
+{
+  <div class="flash note-bar" role="status"><div class="wrap">
+    <span>Please confirm your email address. We sent you a link.</span>
+    <form asp-controller="Account" asp-action="ResendVerification" method="post" style="margin:0"><button class="btn btn-dark btn-sm">Send it again</button></form>
+  </div></div>
+}
+<main>@RenderBody()</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <a class="brand" asp-controller="Home" asp-action="Index"><svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" fill="#75AADB"/><rect y="9" width="32" height="14" fill="#fff"/><rect y="12" width="32" height="8" fill="#000"/></svg>SkillLink</a>
+    <span>Connecting customers with approved local providers across Botswana.</span>
+  </div>
+</footer>
+<script src="~/js/site.js"></script>
+@RenderSection("Scripts", required: false)
+</body>
+</html>
